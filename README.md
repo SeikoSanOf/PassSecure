@@ -35,7 +35,7 @@ pip install cryptography>=3.4.0 bcrypt>=3.2.0 pyperclip>=1.8.0 argon2-cffi>=21.3
 ### 🔧 Installation et setup
 
 ```bash
-git clone https://github.com/votre-utilisateur/PassSecure.git
+git clone https://github.com/SeikoSanOf/PassSecure.git
 cd PassSecure
 pip install -r requirements.txt
 ```
@@ -117,7 +117,7 @@ PassSecure est open-source. Toute contribution est la bienvenue !
 
 ```bash
 # Fork du projet
-git clone https://github.com/votre-utilisateur/PassSecure.git
+git clone https://github.com/SeikoSanOf/PassSecure.git
 cd PassSecure
 
 # Créer une branche
