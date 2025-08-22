@@ -142,9 +142,13 @@ git push origin feature/ma-nouvelle-fonctionnalite
 ---
 
 ## 📋 Feuille de route
+
+- 🖥️ Interface graphique (GUI)  [ ]
+- ☁️ Synchronisation cloud chiffrée  [ ]
+- 🧠 Générateur de phrases de passe (mnémotechnique)   [ ]
 - 🔍 Audit de sécurité interne  [✅]
-- 🔐 Support 2FA (TOTP)  []
-- ⚙️ Mode batch pour scripts  []
+- 🔐 Support 2FA (TOTP)  [ ]
+- ⚙️ Mode batch pour scripts  [ ]
 
 ---
 
@@ -173,7 +177,7 @@ MIT License – voir fichier LICENSE
 
 ## 🔗 Ressources utiles
 
-- `python securecore.py --help` : aide intégrée  
+- `python SecureCore.py --help` : aide intégrée  
 - Fichiers exemples pour dictionnaire  
 - Documentation dans les docstrings du code  
 
