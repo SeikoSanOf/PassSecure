@@ -142,15 +142,9 @@ git push origin feature/ma-nouvelle-fonctionnalite
 ---
 
 ## 📋 Feuille de route
-
-- 🖥️ Interface graphique (GUI)  
-- ☁️ Synchronisation cloud chiffrée  
-- 🧠 Générateur de phrases de passe (mnémotechnique)  
-- 🔍 Audit de sécurité interne  
-- 🔄 Export vers KeePass / 1Password  
-- 🔐 Support 2FA (TOTP)  
-- ⚙️ Mode batch pour scripts  
-- 📜 Historique des modifications  
+- 🔍 Audit de sécurité interne  [✅]
+- 🔐 Support 2FA (TOTP)  []
+- ⚙️ Mode batch pour scripts  []
 
 ---
 
