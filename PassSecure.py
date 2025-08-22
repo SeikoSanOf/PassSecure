@@ -396,7 +396,7 @@ def copy(text):
 def check_update():
     try:
         import requests
-        r = requests.get(GITHUB_API_URL)
+        r = requests.get(GITHUB_API_URL, timeout=5)
         r.raise_for_status()
         latest = r.json()
         latest_version = latest["tag_name"].lstrip("v")
