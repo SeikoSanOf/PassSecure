@@ -35,8 +35,8 @@ pip install cryptography>=3.4.0 bcrypt>=3.2.0 pyperclip>=1.8.0 argon2-cffi>=21.3
 ### 🔧 Installation et setup
 
 ```bash
-git clone https://github.com/votre-utilisateur/securecore.git
-cd securecore
+git clone https://github.com/SeikoSanOf/SecureCore.git
+cd SecureCore
 pip install -r requirements.txt
 ```
 
@@ -49,7 +49,7 @@ Au premier lancement, **SecureCore vous demandera de créer un mot de passe admi
 ### 1️⃣ Aléatoire
 
 ```bash
-python securecore.py -g --taille 16
+python SecureCore.py -g --taille 16
 ```
 - `--exclure-ambigus` : pour éviter les caractères ambigus (O, 0, l, I, etc.)
 
@@ -72,7 +72,7 @@ internet
 2. Générer un mot de passe :
 
 ```bash
-python securecore.py -g --nb-mots 4 --dictionnaire mon_dictionnaire.txt
+python SecureCore.py -g --nb-mots 4 --dictionnaire mon_dictionnaire.txt
 ```
 
 💡 Astuce : mélangez mots personnels et termes professionnels pour des mots de passe forts et mémorables.
@@ -117,8 +117,8 @@ SecureCore est open-source. Toute contribution est la bienvenue !
 
 ```bash
 # Fork du projet
-git clone https://github.com/votre-utilisateur/securecore.git
-cd securecore
+git clone https://github.com/SeikoSanOf/SecureCore.git
+cd SecureCore
 
 # Créer une branche
 git checkout -b feature/ma-nouvelle-fonctionnalite
