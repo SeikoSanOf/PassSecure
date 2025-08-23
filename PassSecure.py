@@ -189,15 +189,15 @@ def load_or_create_hmac_key():
             key = f.read()
     return key
 
-def verify_hmac(data: dict, hmac_value: str) -> bool:
-    """Vérifie l'intégrité HMAC du fichier de base de données."""
-    if data is None or not isinstance(data, dict):
+def verify_hmac(passwords: list, hmac_value: str) -> bool:
+    """Vérifie l'intégrité HMAC de la liste de mots de passe."""
+    if passwords is None or not isinstance(passwords, list):
         raise ValueError("❌ Base de données corrompue ou illisible (JSON non valide).")
 
     key = load_or_create_hmac_key()
     computed_hmac = hmac.new(
         key,
-        json.dumps(data, sort_keys=True).encode(),
+        json.dumps(passwords, sort_keys=True).encode(),
         hashlib.sha256
     ).hexdigest()
 
@@ -228,16 +228,15 @@ def load_db():
         except Exception as e:
             raise ValueError(f"❌ Fichier DB illisible : {e}")
 
-    db = payload.get("passwords")
+    passwords = payload.get("passwords")
     hmac_value = payload.get("hmac")
 
-    if db is None or hmac_value is None:
+    if passwords is None or hmac_value is None:
         raise ValueError("❌ Fichier DB invalide ou incomplet.")
 
-    # Vérification HMAC centralisée
-    verify_hmac(db, hmac_value)
+    verify_hmac(passwords, hmac_value)
 
-    return db
+    return passwords
 
 def save_db(db):
     save_db_hmac(db, load_or_create_hmac_key())
@@ -245,7 +244,7 @@ def save_db(db):
 # -------------------------
 # Gestion mots de passe
 # -------------------------
-def save_password_entry(fernet, label: str, password: str):
+def save_password(fernet, label: str, password: str):
     db = load_db()
     if any(entry["label"].lower() == label.lower() for entry in db):
         raise ValueError(f"⚠️ Le label '{label}' existe déjà. Choisissez un autre nom.")
@@ -302,7 +301,6 @@ def list_passwords(fernet, search=None):
             pwd = fernet.decrypt(db[choice-1]["password"].encode()).decode()
             print(f"🔑 Mot de passe pour '{db[choice-1]['label']}' : {pwd}")
             copy(pwd)
-            print("📋 Copié dans le presse-papier")
         else:
             print("❌ Index invalide")
     except ValueError:
@@ -413,7 +411,7 @@ def check_update():
 # -------------------------
 def main():
     parser = argparse.ArgumentParser(description="PassSecure - Gestionnaire de mots de passe")
-    parser.add_argument("-l", "--list", action="store_true", help="Lister tous les mots de passe (sans mot de passe en clair)")
+    parser.add_argument("-l", "--list", action="store_true", help="Lister tous les mots de passe en index (sans mot de passe en clair)")
     parser.add_argument("-r", "--recherche", metavar="LABEL", help="Rechercher un mot de passe")
     parser.add_argument("-s", "--save", nargs=2, metavar=("LABEL", "PWD"), help="Enregistrer un mot de passe")
     parser.add_argument("-u", "--update", metavar="LABEL", help="Mettre à jour un mot de passe")
@@ -450,12 +448,11 @@ def main():
         pwd = generate_password(length=args.taille, exclude_ambiguous=args.exclure_ambigus)
         print(f"🔑 Mot de passe généré : {pwd}")
         copy(pwd)
-        print("📋 Le mot de passe a été copié dans le presse-papier")
 
         if input("Voulez-vous enregistrer ce mot de passe ? (oui/non) : ").strip().lower() == "oui":
             db = load_db()
             label = prompt_unique_label(db)
-            save_password_entry(fernet, label, pwd)
+            save_password(fernet, label, pwd)
             return
 
     if args.save:
@@ -464,7 +461,7 @@ def main():
         if any(e['label'].lower() == label.lower() for e in db):
             print(f"❌ Le label '{label}' existe déjà.")
             return
-        save_password_entry(fernet, label, pwd)
+        save_password(fernet, label, pwd)
         return
 
     if args.list:

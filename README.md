@@ -40,7 +40,7 @@ cd PassSecure
 pip install -r requirements.txt
 ```
 
-Au premier lancement, **PassSecure vous demandera de créer un mot de passe administrateur** et générera les fichiers nécessaires dans `~/.secure_passwords/`.
+Au premier lancement, **PassSecure vous demandera de créer un mot de passe administrateur** et générera les fichiers nécessaires dans `~/.passsecure/`.
 
 ---
 
@@ -83,31 +83,32 @@ python PassSecure.py -g --nb-mots 4 --dictionnaire mon_dictionnaire.txt
 
 | Option | Description |
 |--------|-------------|
-| `-l, --liste` | Afficher tous les mots de passe |
-| `-r, --recherche <libelle>` | Rechercher un mot de passe |
-| `-s, --supprimer <libelle>` | Supprimer un mot de passe |
+| `-l, --list` | Afficher tous les mots de passe |
+| `-r, --recherche <libelle>` | recherche un mots de passe  |
+| `-s, --save <libelle> <PWD>` | Enregistrer un mot de passe |
 | `-u, --update <libelle>` | Mettre à jour un mot de passe |
+| `-del, --supprimer <libelle>` | Supprimer un mot de passe |
 | `-i, --importer <fichier>` | Importer des mots de passe depuis un fichier |
 | `-n, --nuke` | Supprimer toutes les données |
 | `-g, --generate` | Générer un mot de passe |
-| `--taille <n>` | Taille du mot de passe aléatoire |
-| `--nb-mots <n>` | Nombre de mots pour mot de passe dictionnaire |
-| `--exclure-ambigus` | Exclure caractères ambigus |
-| `--dictionnaire <fichier>` | Fichier dictionnaire personnalisé |
-
+| `-t, --taille <n>` | Taille du mot de passe aléatoire |
+| `-nbm, --nb-mots <n>` | Nombre de mots pour mot de passe dictionnaire |
+| `-ea, --exclure-ambigus` | Exclure caractères ambigus |
+| `-d, --dictionnaire <fichier>` | Fichier dictionnaire personnalisé |
+| `--check-update` | Vérifier mise à jour |
 ---
 
 ## 🧱 Structure du code
 
 | Fonction | Rôle |
 |----------|------|
-| `demander_admin()` | Authentification et création mot de passe admin |
+| `request_admin_password()` | Authentification et création mot de passe admin |
 | `derive_key()` | Dérivation de clé via PBKDF2-HMAC ou Argon2id |
-| `generer_*()` | Génération de mots de passe |
-| `*_mot_de_passe()` | Fonctions CRUD (ajout, suppression, modification, affichage) |
+| `generate_*()` | Génération de mots de passe |
+| `*_password()` | Fonctions CRUD (ajout, suppression, modification, affichage) |
 | `main()` | Point d’entrée CLI |
-| `copy_with_clear()` | Copie dans presse-papier avec purge automatique |
-| `nukeall()` | Supprime toutes les données de manière sécurisée |
+| `copy(text)` | Copie dans presse-papier |
+| `nuke_all()` | Supprime toutes les données de manière sécurisée |
 
 ---
 
