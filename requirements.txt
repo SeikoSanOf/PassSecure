@@ -1,5 +1,5 @@
 argon2==0.1.10
 cryptography==45.0.6
 pyperclip==1.9.0
-bcrypt==0.3.2
+python_bcrypt==0.3.2
 Requests==2.32.5

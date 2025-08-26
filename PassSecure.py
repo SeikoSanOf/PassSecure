@@ -30,7 +30,7 @@ from cryptography.hazmat.backends import default_backend
 # -------------------------
 # Version & URL de maj
 # -------------------------
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 GITHUB_API_URL = "https://api.github.com/repos/SeikoSanOf/PassSecure/releases/latest"
 
 # -------------------------
@@ -299,8 +299,10 @@ def list_passwords(fernet, search=None):
             return
         if 1 <= choice <= len(db):
             pwd = fernet.decrypt(db[choice-1]["password"].encode()).decode()
+            print(f"    ")
             print(f"🔑 Mot de passe pour '{db[choice-1]['label']}' : {pwd}")
             copy(pwd)
+            print(f"    ")
         else:
             print("❌ Index invalide")
     except ValueError:
@@ -380,11 +382,11 @@ def generate_dictionary_password(nb_words=4, separator="-", path="dictionary.txt
     words = load_dictionary(path)
     return separator.join(secrets.choice(words) for _ in range(nb_words))
 
-def copy(text):
+def copy(pwd):
     try:
         import pyperclip
-        pyperclip.copy(text)
-        print("📋 Le texte a été copié dans le presse-papier")
+        pyperclip.copy(pwd)
+        print("📋 Mot de passe copié dans le presse-papier.")
     except Exception:
         print("⚠️ Impossible de copier dans le presse-papier")
 
@@ -410,7 +412,14 @@ def check_update():
 # CLI
 # -------------------------
 def main():
-    parser = argparse.ArgumentParser(description="PassSecure - Gestionnaire de mots de passe")
+
+
+    parser = argparse.ArgumentParser(description="Gestionnaire de mots de passe")
+    
+    # Ajout de l'option interactive
+    parser.add_argument("-ui", "--interactive", action="store_true", help="Mode interactif")
+
+    # Commandes classiques
     parser.add_argument("-l", "--list", action="store_true", help="Lister tous les mots de passe en index (sans mot de passe en clair)")
     parser.add_argument("-r", "--recherche", metavar="LABEL", help="Rechercher un mot de passe")
     parser.add_argument("-s", "--save", nargs=2, metavar=("LABEL", "PWD"), help="Enregistrer un mot de passe")
@@ -424,19 +433,92 @@ def main():
     parser.add_argument("-ea", "--exclure-ambigus", action="store_true", help="Exclure caractères ambigus")
     parser.add_argument("-d", "--dictionnaire", metavar="FILE", default="dictionary.txt", help="Fichier dictionnaire personnalisé")
     parser.add_argument("--check-update", action="store_true", help="Vérifier mise à jour")
+
     args = parser.parse_args()
 
-    if args.check_update:
-        check_update()
-        return
+    # Vérifie si le fichier exécuté est un .exe
+    is_exe = os.path.splitext(sys.argv[0])[1].lower() == '.exe'
 
-    if args.nuke:
-        admin_pwd = request_admin_password()
+    # Si c'est un .exe, forcer le mode interactif sans demander
+    if is_exe:
+        print("Le programme est lancé en mode interactif par défaut.")
+        mode_interactif()
+        return  # Quitte après avoir activé le mode interactif
     
-        confirm = input("⚠️ Confirmer suppression totale ? (oui) : ")
-        if confirm.lower() == "oui":
-            nuke_all()
-        return
+    # Sinon, proposer un choix entre le mode interactif et le mode commande
+    if len(sys.argv) == 1:  # Si aucun argument n'est passé
+        choix = input("Quelle interface utiliser ui ou c (Commandes) : ").strip().lower()
+        if choix == 'ui':
+            mode_interactif()
+            return
+        elif choix in ['c', 'commandes']:
+            parser.print_help()
+            return
+        else:
+            print("❌ Choix invalide. Veuillez taper 'ui' ou 'c'.")
+            return
+
+
+
+
+    # Mode interactif
+    if args.interactive:
+        mode_interactif()
+
+    else:
+        # Gérer les commandes classiques (comme avant)
+        if args.check_update:
+            check_update()
+        elif args.nuke:
+            admin_pwd = request_admin_password()
+            confirm = input("⚠️ Confirmer suppression totale ? (oui) : ")
+            if confirm.lower() == "oui":
+                nuke_all()
+        else:
+            admin_pwd = request_admin_password()
+            salt = load_or_create_salt()
+            key = derive_key(admin_pwd, salt)
+            fernet = Fernet(key)
+            _ensure_permissions()
+            
+            # Gérer les autres commandes
+            if args.list:
+                list_passwords(fernet)
+            elif args.recherche:
+                list_passwords(fernet, search=args.recherche)
+            elif args.save:
+                label, pwd = args.save
+                db = load_db()
+                if any(e['label'].lower() == label.lower() for e in db):
+                    print(f"❌ Le label '{label}' existe déjà.")
+                else:
+                    save_password(fernet, label, pwd)
+            elif args.update:
+                update_password(fernet, args.update)
+            elif args.supprimer:
+                delete_password(args.supprimer)
+            elif args.importer:
+                try:
+                    with open(args.importer, "r", encoding="utf-8") as f:
+                        imported = json.load(f)
+                    db = load_db()
+                    for e in imported:
+                        db.append({"label": e["label"], "password": fernet.encrypt(e["password"].encode()).decode()})
+                    save_db(db)
+                    print("✅ Import terminé.")
+                except Exception as e:
+                    print("❌ Erreur import :", e)
+            elif args.generate:
+                pwd = generate_password(length=args.taille, exclude_ambiguous=args.exclure_ambigus)
+                print(f"🔑 Mot de passe généré : {pwd}")
+                copy(pwd)
+                if input("Voulez-vous enregistrer ce mot de passe ? (oui/non) : ").strip().lower() == "oui":
+                    label = prompt_unique_label(load_db())
+                    save_password(fernet, label, pwd)
+
+def mode_interactif():
+    """Mode interactif pour permettre à l'utilisateur de taper des commandes continuellement."""
+    print("Mode interactif activé.")
 
     admin_pwd = request_admin_password()
     salt = load_or_create_salt()
@@ -444,56 +526,69 @@ def main():
     fernet = Fernet(key)
     _ensure_permissions()
 
-    if args.generate:
-        pwd = generate_password(length=args.taille, exclude_ambiguous=args.exclure_ambigus)
-        print(f"🔑 Mot de passe généré : {pwd}")
-        copy(pwd)
+    while True:
+        print("\n--- Commandes disponibles ---")
+        print("1. Lister les mots de passe")
+        print("2. Ajouter un mot de passe")
+        print("3. Mettre à jour un mot de passe")
+        print("4. Supprimer un mot de passe")
+        print("5. Générer un mot de passe")
+        print("6. Rechercher un mot de passe")
+        print("7. Importer des mots de passe depuis un fichier")
+        print("8. Supprimer toutes les données (nuke)")
+        print("9. Vérifier les mises à jour")
+        print("10. Fermer le programme (tapez 'close')")
 
-        if input("Voulez-vous enregistrer ce mot de passe ? (oui/non) : ").strip().lower() == "oui":
-            db = load_db()
-            label = prompt_unique_label(db)
+        commande = input("Entrez votre commande : ").strip().lower()
+
+        if commande == "1":
+            list_passwords(fernet)
+        elif commande == "2":
+            label = input("Entrez le label du mot de passe : ")
+            pwd = getpass.getpass("Entrez le mot de passe : ")
             save_password(fernet, label, pwd)
-            return
-
-    if args.save:
-        label, pwd = args.save
-        db = load_db()
-        if any(e['label'].lower() == label.lower() for e in db):
-            print(f"❌ Le label '{label}' existe déjà.")
-            return
-        save_password(fernet, label, pwd)
-        return
-
-    if args.list:
-        list_passwords(fernet)
-        return
-
-    if args.recherche:
-        list_passwords(fernet, search=args.recherche)
-        return
-
-    if args.supprimer:
-        delete_password(args.supprimer)
-        return
-
-    if args.update:
-        update_password(fernet, args.update)
-        return
-
-    if args.importer:
-        try:
-            with open(args.importer, "r", encoding="utf-8") as f:
-                imported = json.load(f)
-            db = load_db()
-            for e in imported:
-                db.append({"label": e["label"], "password": fernet.encrypt(e["password"].encode()).decode()})
-            save_db(db)
-            print("✅ Import terminé.")
-        except Exception as e:
-            print("❌ Erreur import :", e)
-
-    parser.print_help()
-
+        elif commande == "3":
+            label = input("Entrez le label du mot de passe à mettre à jour : ")
+            update_password(fernet, label)
+        elif commande == "4":
+            label = input("Entrez le label du mot de passe à supprimer : ")
+            delete_password(label)
+        elif commande == "5":
+            taille = int(input("Entrez la taille du mot de passe généré : "))
+            pwd = generate_password(length=taille, exclude_ambiguous=False)
+            print(f"🔑 Mot de passe généré : {pwd}")
+            copy(pwd)
+            if input("Voulez-vous enregistrer ce mot de passe ? (oui/non) : ").strip().lower() == "oui":
+                label = prompt_unique_label(load_db())
+                save_password(fernet, label, pwd)
+        elif commande == "6":
+            search_label = input("Entrez le label à rechercher : ")
+            list_passwords(fernet, search=search_label)
+        elif commande == "7":
+            fichier = input("Entrez le chemin du fichier à importer : ")
+            try:
+                with open(fichier, "r", encoding="utf-8") as f:
+                    imported = json.load(f)
+                db = load_db()
+                for e in imported:
+                    db.append({"label": e["label"], "password": fernet.encrypt(e["password"].encode()).decode()})
+                save_db(db)
+                print("✅ Import terminé.")
+            except Exception as e:
+                print("❌ Erreur lors de l'importation :", e)
+        elif commande == "8":
+            admin_pwd = request_admin_password()
+            confirm = input("⚠️ Confirmer suppression totale ? (oui) : ")
+            if confirm.lower() == "oui":
+                nuke_all()
+        elif commande == "9":
+            check_update()
+        elif commande == "close":
+            print("Fermeture du programme...")
+            os.system('cls' if os.name == 'nt' else 'clear')
+            break  # Sort de la boucle et ferme le programme
+        else:
+            print("Commande invalide. Essayez encore.")
 
 if __name__ == "__main__":
     main()
