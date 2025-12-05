@@ -18,8 +18,8 @@ Il chiffre vos données localement avec des algorithmes cryptographiques robuste
 - 🔧 **Interface CLI intuitive**
 - 🚫 **Protection Git** automatique via `.gitignore`
 - 📊 **Métadonnées KDF et versioning** pour migrations futures
-- 🖥️ Interface graphique (GUI)
-- 📜 Historique des modifications
+- 🖥️ **Interface graphique (GUI)**
+- 📜 **Historique des modifications**
 
 ---
 
@@ -27,7 +27,7 @@ Il chiffre vos données localement avec des algorithmes cryptographiques robuste
 
 ### 📦 Prérequis
 
-- Python 3.x
+- Python 3.x (si .exe non utilisé)
 - Bibliothèques :
 
 ```bash
@@ -42,7 +42,7 @@ cd PassSecure
 pip install -r requirements.txt
 ```
 
-Au premier lancement, **PassSecure vous demandera de créer un mot de passe administrateur** et générera les fichiers nécessaires dans `~/.passsecure/`.
+Au premier lancement, **PassSecure vous demandera de créer un mot de passe administrateur** et générera les fichiers nécessaires.
 
 ---
 
@@ -55,7 +55,7 @@ python PassSecure.py -g --taille 16
 ```
 - `--exclure-ambigus` : pour éviter les caractères ambigus (O, 0, l, I, etc.)
 
-### 2️⃣ Dictionnaire personnalisé
+### 2️⃣ Dictionnaire personnalisé (retirer)
 
 1. Créez un fichier texte (un mot par ligne) :
 
@@ -102,15 +102,42 @@ python PassSecure.py -g --nb-mots 4 --dictionnaire mon_dictionnaire.txt
 
 ## 🧱 Structure du code
 
+1. Moteur & Utilitaires (Backend)
+   
 | Fonction | Rôle |
 |----------|------|
-| `request_admin_password()` | Authentification et création mot de passe admin |
-| `derive_key()` | Dérivation de clé via PBKDF2-HMAC ou Argon2id |
-| `generate_*()` | Génération de mots de passe |
-| `*_password()` | Fonctions CRUD (ajout, suppression, modification, affichage) |
-| `main()` | Point d’entrée CLI |
-| `copy(text)` | Copie dans presse-papier |
-| `nuke_all()` | Supprime toutes les données de manière sécurisée |
+| `CryptoEngine` | Classe gérant la cryptographie (Argon2id) |
+| `derive_key()` | Dérivation de la clé de chiffrement du coffre |
+| `hash_admin_password()` | Hachage sécurisé du mot de passe maître |
+| `try_migrate()` | Déchiffre et convertit les anciennes bases de données (v1 → v1.0.3) |
+| `load_vault(fernet)` | Charge et déchiffre le JSON depuis le disque |
+| `save_vault(fernet, data)` | Chiffre et sauvegarde le JSON sur le disque (écriture atomique) |
+| `check_password_strength()` | Analyse la robustesse d'un mot de passe (score & feedback) |
+| `ActionLogger.log()` | Enregistre les événements dans audit.log |
+
+2. Interface Graphique (Frontend)
+
+| Méthode | Rôle |
+|----------|------|
+| `PassSecureGUI` | Classe principale de l'application (hérite de ctk.CTk) |
+| `__init__()()` | Initialisation, configuration du Timer d'inactivité |
+| `show_auth_screen()` | Affiche l'écran de login ou de création de compte |
+| `attempt_login()` | Vérifie le mot de passe et lance la migration si nécessaire |
+| `show_dashboard()` | Affiche le menu principal (Sidebar + Contenu) |
+| `view_passwords()` | CRUD (Lecture) : Affiche la liste des comptes avec recherche |
+| `add_password_dialog()` | CRUD (Création) : Fenêtre modale pour ajouter un mot de passe |
+| `_create_row() → del_act` | CRUD (Suppression) : Bouton poubelle pour supprimer une entrée |
+| `view_generator()` | Génération : Interface de création de mots de passe aléatoires |
+| `view_settings()` | Menu des paramètres (Export, Import, Changement MDP) |
+| `view_settings() → nuke()` | Zone de danger : Suppression totale et sécurisée des données |
+| `check_for_updates()` | Vérifie la dernière version sur GitHub via API |
+| `logout()` | Verrouille l'application et efface la clé en mémoire |
+
+3. Point d'entrée
+
+| Bloc | Rôle |
+|----------|------|
+| `if __name__ == "__main__":` | Vérifie les permissions fichiers et lance la boucle mainloop() |
 
 ---
 
