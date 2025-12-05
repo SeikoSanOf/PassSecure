@@ -45,43 +45,7 @@ pip install -r requirements.txt
 Au premier lancement, **PassSecure vous demandera de créer un mot de passe administrateur** et générera les fichiers nécessaires.
 
 ---
-
-## 🎲 Génération de mots de passe
-
-### 1️⃣ Aléatoire
-
-```bash
-python PassSecure.py -g --taille 16
-```
-- `--exclure-ambigus` : pour éviter les caractères ambigus (O, 0, l, I, etc.)
-
-### 2️⃣ Dictionnaire personnalisé (retirer)
-
-1. Créez un fichier texte (un mot par ligne) :
-
-```text
-securite
-chiffrement
-motdepasse
-protection
-authentification
-cryptographie
-developpement
-ordinateur
-internet
-```
-
-2. Générer un mot de passe :
-
-```bash
-python PassSecure.py -g --nb-mots 4 --dictionnaire mon_dictionnaire.txt
-```
-
-💡 Astuce : mélangez mots personnels et termes professionnels pour des mots de passe forts et mémorables.
-
----
-
-## 🛠️ Utilisation CLI
+## 🛠️ Utilisation CLI (CLI retirer)
 
 | Option | Description |
 |--------|-------------|
@@ -205,7 +169,6 @@ MIT License – voir fichier LICENSE
 
 ## 🔗 Ressources utiles
 
-- `python PassSecure.py --help` : aide intégrée a la version console (ancienne version)
 - Documentation dans les docstrings du code  
 
 ---
