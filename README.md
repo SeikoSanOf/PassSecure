@@ -18,6 +18,8 @@ Il chiffre vos données localement avec des algorithmes cryptographiques robuste
 - 🔧 **Interface CLI intuitive**
 - 🚫 **Protection Git** automatique via `.gitignore`
 - 📊 **Métadonnées KDF et versioning** pour migrations futures
+- 🖥️ Interface graphique (GUI)
+- 📜 Historique des modifications
 
 ---
 
@@ -144,22 +146,18 @@ git push origin feature/ma-nouvelle-fonctionnalite
 
 ## 📋 Feuille de route
 
-- 🖥️ Interface graphique (GUI)  
-- ☁️ Synchronisation cloud chiffrée  
+- ☁️ Synchronisation cloud chiffrée (fichié déchifrable par votre unique clé)
 - 🧠 Générateur de phrases de passe (mnémotechnique)  
 - 🔍 Audit de sécurité interne  
 - 🔄 Export vers KeePass / 1Password  
 - 🔐 Support 2FA (TOTP)  
 - ⚙️ Mode batch pour scripts  
-- 📜 Historique des modifications  
 
 ---
 
 ## ⚠️ Limitations actuelles
 
-- 📍 Local uniquement (pas de synchronisation)  
-- 💻 CLI uniquement (pas encore de GUI)  
-- 🐍 Python requis  
+- 📍 Local uniquement (pas de synchronisation)
 - 📋 Copie presse-papier dépendante du système  
 
 ---
@@ -180,8 +178,7 @@ MIT License – voir fichier LICENSE
 
 ## 🔗 Ressources utiles
 
-- `python PassSecure.py --help` : aide intégrée  
-- Fichiers exemples pour dictionnaire  
+- `python PassSecure.py --help` : aide intégrée a la version console (ancienne version)
 - Documentation dans les docstrings du code  
 
 ---
