@@ -7,7 +7,7 @@ Il chiffre vos données localement avec des algorithmes cryptographiques robuste
 
 ## ✨ Fonctionnalités principales
 
-- 🔒 **Chiffrement AES-256** via Fernet (Clé dérivée par PBKDF2-HMAC ou Argon2id)
+- 🔒 **Chiffrement AES-256** via Fernet (Clé dérivée par Argon2id)
 - 🛡️ **Authentification sécurisée** via bcrypt pour le mot de passe administrateur
 - 🔐 **Intégrité de la base** : HMAC global pour détecter toute modification ou corruption
 - 🎲 **Générateur de mots de passe** aléatoires ou basés sur un dictionnaire
